@@ -11,7 +11,7 @@ type TernaryNode_t struct {
 	hi_kid * TernaryNode_t
 	lo_kid * TernaryNode_t
 	key rune
-	value string
+	value string	// prefix termination
 }
 
 type TernaryTree_t struct {
@@ -43,10 +43,10 @@ func (self * TernaryTree_t) Add(str string, value string) {
 }
 
 func (self * TernaryTree_t) Search(str string) (int, bool, string) {
-	cur := self.root
 	var n int
 	var val rune
 	var value string
+	cur := self.root
 	for n, val = range str {
 		if cur == nil {
 			return n, false, value
