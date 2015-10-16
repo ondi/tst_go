@@ -40,7 +40,7 @@ func (self * TernaryTree_t) Add(str string, value string) {
 	}
 }
 
-func (self * TernaryTree_t) Search(str string) (int, bool, string) {
+func (self * TernaryTree_t) Search(str string) (int, string, bool) {
 	var n int
 	var val rune
 	var value string
@@ -54,10 +54,10 @@ func (self * TernaryTree_t) Search(str string) (int, bool, string) {
 			}
 		}
 		if cur == nil {
-			return n, false, value
+			return n, value, false
 		}
 		value = cur.value
 		cur = cur.eq_kid
 	}
-	return len(str), cur != nil, value
+	return len(str), value, cur != nil
 }
