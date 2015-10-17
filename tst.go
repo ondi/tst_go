@@ -17,12 +17,12 @@ type TernaryTree_t struct {
 }
 
 func (self * TernaryTree_t) Add(str string, value string) {
-	var val rune
+	var key rune
 	cur := &self.root
 	var last ** TernaryNode_t
-	for _, val = range str {
-		for *cur != nil && val != (*cur).key {
-			if val < (*cur).key {
+	for _, key = range str {
+		for *cur != nil && key != (*cur).key {
+			if key < (*cur).key {
 				cur = &(*cur).lo_kid
 			} else {
 				cur = &(*cur).hi_kid
@@ -30,7 +30,7 @@ func (self * TernaryTree_t) Add(str string, value string) {
 		}
 		if *cur == nil {
 			*cur = &TernaryNode_t{}
-			(*cur).key = val
+			(*cur).key = key
 		}
 		last = cur
 		cur = &(*cur).eq_kid
@@ -42,22 +42,29 @@ func (self * TernaryTree_t) Add(str string, value string) {
 
 func (self * TernaryTree_t) Search(str string) (int, string, bool) {
 	var n int
-	var val rune
+	var prev int
+	var key rune
 	var value string
 	cur := self.root
-	for n, val = range str {
-		for cur != nil && val != cur.key {
-			if val < cur.key {
+	for n, key = range str {
+		for cur != nil && key != cur.key {
+			if key < cur.key {
 				cur = cur.lo_kid
 			} else {
 				cur = cur.hi_kid
 			}
 		}
 		if cur == nil {
-			return n, value, false
+			return prev, value, false
 		}
-		value = cur.value
+		if len(cur.value) > 0 {
+			value = cur.value
+		}
+		prev = n
 		cur = cur.eq_kid
 	}
-	return len(str), value, cur != nil
+	if n == prev {
+		n = len(str)
+	}
+	return n, value, cur != nil
 }
