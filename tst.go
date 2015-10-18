@@ -63,5 +63,8 @@ func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
 		prev = n
 		cur = cur.eq_kid
 	}
+	if n == prev {
+		n = len(str)
+	}
 	return n, prev, value, cur != nil
 }
