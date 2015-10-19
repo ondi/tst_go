@@ -4,15 +4,12 @@
 
 package tst_go
 
-import "os"
-import "fmt"
-
 type TernaryNode_t struct {
 	eq_kid * TernaryNode_t
 	hi_kid * TernaryNode_t
 	lo_kid * TernaryNode_t
 	key rune
-	value string	// prefix termination
+	value string	// prefix terminator
 }
 
 type TernaryTree_t struct {
@@ -61,16 +58,14 @@ func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
 		if cur == nil {
 			return n, prev, value, false
 		}
-		last_eq++
 		if len(cur.value) > 0 {
 			value = cur.value
-			last_eq = 0
-		} else if last_eq > 1 {
+			last_eq = n
+		} else if last_eq < prev {
 			value = ""
 		}
-		fmt.Fprintf(os.Stderr, "TST EQ '%v' %v %v %v '%v'\n", str[n:], n, prev, last_eq, value)
-		cur = cur.eq_kid
 		prev = n
+		cur = cur.eq_kid
 	}
 	return len(str), prev, value, cur != nil
 }
