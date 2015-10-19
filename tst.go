@@ -42,8 +42,7 @@ func (self * TernaryTree_t) Add(str string, value string) {
 
 func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
 	var n int
-	var prev int
-	var last_eq int
+	var last int
 	var key rune
 	var value string
 	cur := self.root
@@ -56,16 +55,13 @@ func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
 			}
 		}
 		if cur == nil {
-			return n, prev, value, false
+			return last, n, value, false
 		}
 		if len(cur.value) > 0 {
 			value = cur.value
-			last_eq = n
-		} else if last_eq < prev {
-			value = ""
+			last = n
 		}
-		prev = n
 		cur = cur.eq_kid
 	}
-	return len(str), prev, value, cur != nil
+	return last, len(str), value, cur != nil
 }
