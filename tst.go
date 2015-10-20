@@ -4,6 +4,8 @@
 
 package tst_go
 
+import "unicode/utf8"
+
 type TernaryNode_t struct {
 	eq_kid * TernaryNode_t
 	hi_kid * TernaryNode_t
@@ -59,7 +61,8 @@ func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
 		}
 		if len(cur.value) > 0 {
 			value = cur.value
-			last = n
+			_, size := utf8.DecodeRuneInString(str[n:])
+			last = n + size
 		}
 		cur = cur.eq_kid
 	}
