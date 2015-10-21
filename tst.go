@@ -2,7 +2,7 @@
 // ternary search tree
 //
 
-package tst_go
+package tst
 
 import "unicode/utf8"
 
