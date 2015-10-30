@@ -6,8 +6,6 @@ package tst
 
 import "unicode/utf8"
 
-const INTMAX = 1 << 32 - 1
-
 type TernaryNode2_t struct {
 	hi_kid int
 	eq_kid int
