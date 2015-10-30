@@ -6,22 +6,22 @@ package tst
 
 import "unicode/utf8"
 
-type TernaryNode_t struct {
-	eq_kid * TernaryNode_t
-	hi_kid * TernaryNode_t
-	lo_kid * TernaryNode_t
+type TernaryNode1_t struct {
+	eq_kid * TernaryNode1_t
+	hi_kid * TernaryNode1_t
+	lo_kid * TernaryNode1_t
 	key rune
 	value string	// prefix terminator
 }
 
-type TernaryTree_t struct {
-	root * TernaryNode_t
+type TernaryTree1_t struct {
+	root * TernaryNode1_t
 }
 
-func (self * TernaryTree_t) Add(str string, value string) {
+func (self * TernaryTree1_t) Add(str string, value string) {
 	var key rune
 	cur := &self.root
-	var last ** TernaryNode_t
+	var last ** TernaryNode1_t
 	for _, key = range str {
 		for *cur != nil && key != (*cur).key {
 			if key < (*cur).key {
@@ -31,8 +31,7 @@ func (self * TernaryTree_t) Add(str string, value string) {
 			}
 		}
 		if *cur == nil {
-			*cur = &TernaryNode_t{}
-			(*cur).key = key
+			*cur = &TernaryNode1_t{key: key}
 		}
 		last = cur
 		cur = &(*cur).eq_kid
@@ -42,7 +41,7 @@ func (self * TernaryTree_t) Add(str string, value string) {
 	}
 }
 
-func (self * TernaryTree_t) Search(str string) (int, int, string, bool) {
+func (self * TernaryTree1_t) Search(str string) (int, int, string, bool) {
 	var n int
 	var last int
 	var key rune
