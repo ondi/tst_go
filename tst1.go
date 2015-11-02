@@ -18,52 +18,95 @@ type TernaryTree1_t struct {
 	root * TernaryNode1_t
 }
 
+type Cursor1_t struct {
+	cur ** TernaryNode1_t
+}
+
+func (self * TernaryTree1_t) Cursor() (c * Cursor1_t) {
+	c = &Cursor1_t{}
+	c.cur = &self.root
+	return
+}
+
 func (self * TernaryTree1_t) Add(str string, value string) {
-	var key rune
-	cur := &self.root
+	c := self.Cursor()
 	var last ** TernaryNode1_t
-	for _, key = range str {
-		for *cur != nil && key != (*cur).key {
-			if key < (*cur).key {
-				cur = &(*cur).lo_kid
+	for _, key := range str {
+		for *c.cur != nil && key != (*c.cur).key {
+			if key < (*c.cur).key {
+				c.cur = &(*c.cur).lo_kid
 			} else {
-				cur = &(*cur).hi_kid
+				c.cur = &(*c.cur).hi_kid
 			}
 		}
-		if *cur == nil {
-			*cur = &TernaryNode1_t{key: key}
+		if *c.cur == nil {
+			*c.cur = &TernaryNode1_t{key: key}
 		}
-		last = cur
-		cur = &(*cur).eq_kid
+		last = c.cur
+		c.cur = &(*c.cur).eq_kid
 	}
 	if last != nil {
 		(*last).value = value
 	}
 }
 
+func (self * TernaryTree1_t) Next(c * Cursor1_t, key rune) (value string, next bool) {
+	for *c.cur != nil && key != (*c.cur).key {
+		if key < (*c.cur).key {
+			c.cur = &(*c.cur).lo_kid
+		} else {
+			c.cur = &(*c.cur).hi_kid
+		}
+	}
+	if *c.cur == nil {
+		return value, false
+	}
+	if len((*c.cur).value) > 0 {
+		value = (*c.cur).value
+	}
+	c.cur = &(*c.cur).eq_kid
+	return value, *c.cur != nil
+}
+
 func (self * TernaryTree1_t) Search(str string) (int, int, string, bool) {
-	var n int
-	var last int
-	var key rune
-	var value string
-	cur := self.root
-	for n, key = range str {
-		for cur != nil && key != cur.key {
-			if key < cur.key {
-				cur = cur.lo_kid
-			} else {
-				cur = cur.hi_kid
-			}
-		}
-		if cur == nil {
-			return last, n, value, false
-		}
-		if len(cur.value) > 0 {
-			value = cur.value
+	last := 0
+	c := self.Cursor()
+	var found string
+	for n, key := range str {
+		value, next := self.Next(c, key)
+		if len(value) > 0 {
+			found = value
 			_, size := utf8.DecodeRuneInString(str[n:])
 			last = n + size
 		}
-		cur = cur.eq_kid
+		if next == false {
+			return last, n, found, false
+		}
 	}
-	return last, len(str), value, cur != nil
+	return last, len(str), found, c.cur != nil
+}
+
+func (self * TernaryTree1_t) DEPRECATED_Search1(str string) (int, int, string, bool) {
+	last := 0
+	c := self.Cursor()
+	var value string
+	for n, key := range str {
+		for *c.cur != nil && key != (*c.cur).key {
+			if key < (*c.cur).key {
+				c.cur = &(*c.cur).lo_kid
+			} else {
+				c.cur = &(*c.cur).hi_kid
+			}
+		}
+		if *c.cur == nil {
+			return last, n, value, false
+		}
+		if len((*c.cur).value) > 0 {
+			value = (*c.cur).value
+			_, size := utf8.DecodeRuneInString(str[n:])
+			last = n + size
+		}
+		c.cur = &(*c.cur).eq_kid
+	}
+	return last, len(str), value, *c.cur != nil
 }

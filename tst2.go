@@ -18,70 +18,108 @@ type TernaryTree2_t struct {
 	root []TernaryNode2_t
 }
 
-func (self * TernaryTree2_t) Add(str string, value string) {
-	var key rune
-	var cur int
-	var last int
+type Cursor2_t struct {
+	cur int
+}
+
+func (self * TernaryTree2_t) Cursor() (c * Cursor2_t) {
+	c = &Cursor2_t{}
 	if len(self.root) == 0 {
-		cur = -1
-		last = -1
+		c.cur = -1
 	}
-	for _, key = range str {
-		for cur != -1 && key != self.root[cur].key {
-			last = cur
-			if key < self.root[cur].key {
-				cur = self.root[cur].lo_kid
-				if cur == -1 {
+	return
+}
+
+func (self * TernaryTree2_t) Add(str string, value string) {
+	last := -1
+	c := self.Cursor()
+	for _, key := range str {
+		for c.cur != -1 && key != self.root[c.cur].key {
+			last = c.cur
+			if key < self.root[c.cur].key {
+				c.cur = self.root[c.cur].lo_kid
+				if c.cur == -1 {
 					self.root[last].lo_kid = len(self.root)
 				}
 			} else {
-				cur = self.root[cur].hi_kid
-				if cur == -1 {
+				c.cur = self.root[c.cur].hi_kid
+				if c.cur == -1 {
 					self.root[last].hi_kid = len(self.root)
 				}
 			}
 		}
-		if cur == -1 {
-			cur = len(self.root)
+		if c.cur == -1 {
+			c.cur = len(self.root)
 			if last != -1 && self.root[last].eq_kid == -1 {
-				self.root[last].eq_kid = cur
+				self.root[last].eq_kid = c.cur
 			}
 			self.root = append(self.root, TernaryNode2_t{key: key, eq_kid: -1, hi_kid: -1, lo_kid: -1})
 		}
-		last = cur
-		cur = self.root[cur].eq_kid
+		last = c.cur
+		c.cur = self.root[c.cur].eq_kid
 	}
 	if last != -1 {
 		self.root[last].value = value
 	}
 }
 
-func (self * TernaryTree2_t) Search(str string) (int, int, string, bool) {
-	var key rune
-	var value string
-	var n int
-	var last int
-	var cur int
-	if len(self.root) == 0 {
-		cur = -1
+func (self * TernaryTree2_t) Next(c * Cursor2_t, key rune) (value string, next bool) {
+	for c.cur != -1 && key != self.root[c.cur].key {
+		if key < self.root[c.cur].key {
+			c.cur = self.root[c.cur].lo_kid
+		} else {
+			c.cur = self.root[c.cur].hi_kid
+		}
 	}
-	for n, key = range str {
-		for cur != -1 && key != self.root[cur].key {
-			if key < self.root[cur].key {
-				cur = self.root[cur].lo_kid
-			} else {
-				cur = self.root[cur].hi_kid
-			}
-		}
-		if cur == -1 {
-			return last, n, value, false
-		}
-		if len(self.root[cur].value) > 0 {
-			value = self.root[cur].value
+	if c.cur == -1 {
+		return value, false
+	}
+	if len(self.root[c.cur].value) > 0 {
+		value = self.root[c.cur].value
+	}
+	c.cur = self.root[c.cur].eq_kid
+	return value, c.cur != -1
+}
+
+func (self * TernaryTree2_t) Search(str string) (int, int, string, bool) {
+	last := 0
+	c := self.Cursor()
+	var found string
+	for n, key := range str {
+		value, next := self.Next(c, key)
+		if len(value) > 0 {
+			found = value
 			_, size := utf8.DecodeRuneInString(str[n:])
 			last = n + size
 		}
-		cur = self.root[cur].eq_kid
+		if next == false {
+			return last, n, found, false
+		}
 	}
-	return last, len(str), value, cur != -1
+	return last, len(str), found, c.cur != -1
+}
+
+func (self * TernaryTree2_t) DEPRECATED_Search1(str string) (int, int, string, bool) {
+	last := 0
+	c := self.Cursor()
+	var value string
+	for n, key := range str {
+		for c.cur != -1 && key != self.root[c.cur].key {
+			if key < self.root[c.cur].key {
+				c.cur = self.root[c.cur].lo_kid
+			} else {
+				c.cur = self.root[c.cur].hi_kid
+			}
+		}
+		if c.cur == -1 {
+			return last, n, value, false
+		}
+		if len(self.root[c.cur].value) > 0 {
+			value = self.root[c.cur].value
+			_, size := utf8.DecodeRuneInString(str[n:])
+			last = n + size
+		}
+		c.cur = self.root[c.cur].eq_kid
+	}
+	return last, len(str), value, c.cur != -1
 }
