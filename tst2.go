@@ -96,8 +96,7 @@ func (self * TernaryTree2_t) Search(str string) (int, int, string, bool) {
 		value, next = c.Fetch(key)
 		if len(value) > 0 {
 			found = value
-			_, size := utf8.DecodeRuneInString(str[n:])
-			last = n + size
+			last = n + utf8.RuneLen(key)
 		}
 		if next == false {
 			return last, n, found, false
