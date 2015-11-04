@@ -31,16 +31,19 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 	}
 	for _, key := range str {
 		for cur != -1 && key != self.root[cur].key {
-			last = cur
 			if key < self.root[cur].key {
-				cur = self.root[cur].lo_kid
-				if cur == -1 {
-					self.root[last].lo_kid = len(self.root)
+				if self.root[cur].lo_kid == -1 {
+					self.root[cur].lo_kid = len(self.root)
+					cur = -1
+				} else {
+					cur = self.root[cur].lo_kid
 				}
 			} else {
-				cur = self.root[cur].hi_kid
-				if cur == -1 {
-					self.root[last].hi_kid = len(self.root)
+				if self.root[cur].hi_kid == -1 {
+					self.root[cur].hi_kid = len(self.root)
+					cur = -1
+				} else {
+					cur = self.root[cur].hi_kid
 				}
 			}
 		}
@@ -55,6 +58,9 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 		cur = self.root[cur].eq_kid
 	}
 	if last != -1 {
+		// if len(self.root[last].value) > 0 {
+		// 	panic("last already set: " + self.root[last].value + ", " + str + ", " + value)
+		//}
 		self.root[last].value = value
 	}
 }
