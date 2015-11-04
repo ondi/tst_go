@@ -44,7 +44,7 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 		}
 		if cur >= len(self.root) {
 			cur = len(self.root)
-			if last < len(self.root) && self.root[last].eq_kid == INTMAX {
+			if last != INTMAX && self.root[last].eq_kid == INTMAX {
 				self.root[last].eq_kid = cur
 			}
 			self.root = append(self.root, TernaryNode2_t{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
