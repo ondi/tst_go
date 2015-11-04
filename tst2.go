@@ -23,44 +23,36 @@ type Cursor2_t struct {
 	cur int
 }
 
+const INTMAX = 1 << 32 - 1
+
 func (self * TernaryTree2_t) Add(str string, value string) {
-	last := -1
-	var cur int
-	if len(self.root) == 0 {
-		cur = -1
-	}
+	cur := 0
+	last := INTMAX
 	for _, key := range str {
-		for cur != -1 && key != self.root[cur].key {
+		for cur < len(self.root) && key != self.root[cur].key {
 			if key < self.root[cur].key {
-				if self.root[cur].lo_kid == -1 {
+				if self.root[cur].lo_kid == INTMAX {
 					self.root[cur].lo_kid = len(self.root)
-					cur = -1
-				} else {
-					cur = self.root[cur].lo_kid
 				}
+				cur = self.root[cur].lo_kid
 			} else {
-				if self.root[cur].hi_kid == -1 {
+				if self.root[cur].hi_kid == INTMAX {
 					self.root[cur].hi_kid = len(self.root)
-					cur = -1
-				} else {
-					cur = self.root[cur].hi_kid
 				}
+				cur = self.root[cur].hi_kid
 			}
 		}
-		if cur == -1 {
+		if cur >= len(self.root) {
 			cur = len(self.root)
-			if last != -1 && self.root[last].eq_kid == -1 {
+			if last < len(self.root) && self.root[last].eq_kid == INTMAX {
 				self.root[last].eq_kid = cur
 			}
-			self.root = append(self.root, TernaryNode2_t{key: key, eq_kid: -1, hi_kid: -1, lo_kid: -1})
+			self.root = append(self.root, TernaryNode2_t{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
 		}
 		last = cur
 		cur = self.root[cur].eq_kid
 	}
-	if last != -1 {
-		// if len(self.root[last].value) > 0 {
-		// 	panic("last already set: " + self.root[last].value + ", " + str + ", " + value)
-		//}
+	if last != INTMAX {
 		self.root[last].value = value
 	}
 }
@@ -68,28 +60,25 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 func (self * TernaryTree2_t) Cursor() (c * Cursor2_t) {
 	c = &Cursor2_t{}
 	c.root = self.root
-	if len(self.root) == 0 {
-		c.cur = -1
-	}
 	return
 }
 
 func (self * Cursor2_t) Fetch(key rune) (value string, next bool) {
-	for self.cur != -1 && key != self.root[self.cur].key {
+	for self.cur < len(self.root) && key != self.root[self.cur].key {
 		if key < self.root[self.cur].key {
 			self.cur = self.root[self.cur].lo_kid
 		} else {
 			self.cur = self.root[self.cur].hi_kid
 		}
 	}
-	if self.cur == -1 {
+	if self.cur == INTMAX {
 		return value, false
 	}
 	if len(self.root[self.cur].value) > 0 {
 		value = self.root[self.cur].value
 	}
 	self.cur = self.root[self.cur].eq_kid
-	return value, self.cur != -1
+	return value, self.cur != INTMAX
 }
 
 func (self * TernaryTree2_t) Search(str string) (int, int, string, bool) {
