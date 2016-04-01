@@ -64,6 +64,9 @@ func (self * TernaryTree2_t) Cursor() (c * Cursor2_t) {
 }
 
 func (self * Cursor2_t) Fetch(key rune) (value string, next bool) {
+	if len(self.root) == 0 {
+		return "", false
+	}
 	for self.cur < len(self.root) && key != self.root[self.cur].key {
 		if key < self.root[self.cur].key {
 			self.cur = self.root[self.cur].lo_kid
