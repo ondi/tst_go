@@ -4,27 +4,25 @@
 
 package tst
 
-import "unicode/utf8"
-
-type TernaryNode1_t struct {
-	eq_kid * TernaryNode1_t
-	hi_kid * TernaryNode1_t
-	lo_kid * TernaryNode1_t
-	key rune
-	value string	// prefix terminator
+type node1_t struct {
+	eq_kid *node1_t
+	hi_kid *node1_t
+	lo_kid *node1_t
+	key    rune
+	value  interface{} // prefix terminator
 }
 
-type TernaryTree1_t struct {
-	root * TernaryNode1_t
+type Tree1_t struct {
+	root *node1_t
 }
 
 type Cursor1_t struct {
-	cur ** TernaryNode1_t
+	cur **node1_t
 }
 
-func (self * TernaryTree1_t) Add(str string, value string) {
+func (self *Tree1_t) Add(str string, value string) {
 	cur := &self.root
-	var last ** TernaryNode1_t
+	var last **node1_t
 	for _, key := range str {
 		for *cur != nil && key != (*cur).key {
 			if key < (*cur).key {
@@ -34,7 +32,7 @@ func (self * TernaryTree1_t) Add(str string, value string) {
 			}
 		}
 		if *cur == nil {
-			*cur = &TernaryNode1_t{key: key}
+			*cur = &node1_t{key: key}
 		}
 		last = cur
 		cur = &(*cur).eq_kid
@@ -44,13 +42,11 @@ func (self * TernaryTree1_t) Add(str string, value string) {
 	}
 }
 
-func (self * TernaryTree1_t) Cursor() (c * Cursor1_t) {
-	c = &Cursor1_t{}
-	c.cur = &self.root
-	return
+func (self *Tree1_t) Cursor() *Cursor1_t {
+	return &Cursor1_t{cur: &self.root}
 }
 
-func (self * Cursor1_t) Fetch(key rune) (value string, next bool) {
+func (self *Cursor1_t) Fetch(key rune) (value interface{}, next bool) {
 	for *self.cur != nil && key != (*self.cur).key {
 		if key < (*self.cur).key {
 			self.cur = &(*self.cur).lo_kid
@@ -59,30 +55,23 @@ func (self * Cursor1_t) Fetch(key rune) (value string, next bool) {
 		}
 	}
 	if *self.cur == nil {
-		return value, false
+		return
 	}
-	if len((*self.cur).value) > 0 {
-		value = (*self.cur).value
-	}
+	value = (*self.cur).value
 	self.cur = &(*self.cur).eq_kid
-	return value, *self.cur != nil
+	return value, true
 }
 
-func (self * TernaryTree1_t) Search(str string) (int, int, string, bool) {
-	var found string
-	var value string
-	var next bool
-	last := 0
+func (self *Tree1_t) Search(str string) (found interface{}) {
 	c := self.Cursor()
-	for n, key := range str {
-		value, next = c.Fetch(key)
-		if len(value) > 0 {
+	for _, symbol := range str {
+		value, ok := c.Fetch(symbol)
+		if value != nil {
 			found = value
-			last = n + utf8.RuneLen(key)
 		}
-		if next == false {
-			return last, n, found, false
+		if ok == false {
+			return
 		}
 	}
-	return last, len(str), found, next
+	return
 }

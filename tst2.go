@@ -4,28 +4,26 @@
 
 package tst
 
-import "unicode/utf8"
-
-type TernaryNode2_t struct {
+type node2_t struct {
 	hi_kid int
 	eq_kid int
 	lo_kid int
-	key rune
-	value string	// prefix terminator
+	key    rune
+	value  interface{} // prefix terminator
 }
 
-type TernaryTree2_t struct {
-	root []TernaryNode2_t
+type Tree2_t struct {
+	root []node2_t
 }
 
 type Cursor2_t struct {
-	root []TernaryNode2_t
-	cur int
+	root []node2_t
+	cur  int
 }
 
-const INTMAX = 1 << 32 - 1
+const INTMAX = 1<<32 - 1
 
-func (self * TernaryTree2_t) Add(str string, value string) {
+func (self *Tree2_t) Add(str string, value string) {
 	cur := 0
 	last := INTMAX
 	for _, key := range str {
@@ -47,7 +45,7 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 			if last != INTMAX && self.root[last].eq_kid == INTMAX {
 				self.root[last].eq_kid = cur
 			}
-			self.root = append(self.root, TernaryNode2_t{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
+			self.root = append(self.root, node2_t{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
 		}
 		last = cur
 		cur = self.root[cur].eq_kid
@@ -57,15 +55,13 @@ func (self * TernaryTree2_t) Add(str string, value string) {
 	}
 }
 
-func (self * TernaryTree2_t) Cursor() (c * Cursor2_t) {
-	c = &Cursor2_t{}
-	c.root = self.root
-	return
+func (self *Tree2_t) Cursor() (c *Cursor2_t) {
+	return &Cursor2_t{root: self.root}
 }
 
-func (self * Cursor2_t) Fetch(key rune) (value string, next bool) {
+func (self *Cursor2_t) Fetch(key rune) (value interface{}, next bool) {
 	if len(self.root) == 0 {
-		return "", false
+		return nil, false
 	}
 	for self.cur < len(self.root) && key != self.root[self.cur].key {
 		if key < self.root[self.cur].key {
@@ -75,30 +71,23 @@ func (self * Cursor2_t) Fetch(key rune) (value string, next bool) {
 		}
 	}
 	if self.cur == INTMAX {
-		return value, false
+		return
 	}
-	if len(self.root[self.cur].value) > 0 {
-		value = self.root[self.cur].value
-	}
+	value = self.root[self.cur].value
 	self.cur = self.root[self.cur].eq_kid
-	return value, self.cur != INTMAX
+	return value, true
 }
 
-func (self * TernaryTree2_t) Search(str string) (int, int, string, bool) {
-	var found string
-	var value string
-	var next bool
-	last := 0
+func (self *Tree2_t) Search(str string) (found interface{}) {
 	c := self.Cursor()
-	for n, key := range str {
-		value, next = c.Fetch(key)
-		if len(value) > 0 {
+	for _, symbol := range str {
+		value, ok := c.Fetch(symbol)
+		if value != nil {
 			found = value
-			last = n + utf8.RuneLen(key)
 		}
-		if next == false {
-			return last, n, found, false
+		if ok == false {
+			return
 		}
 	}
-	return last, len(str), found, next
+	return
 }
