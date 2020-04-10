@@ -23,7 +23,7 @@ type Cursor2_t struct {
 
 const INTMAX = 1<<32 - 1
 
-func (self *Tree2_t) Add(str string, value string) {
+func (self *Tree2_t) Add(str string, value interface{}) {
 	cur := 0
 	last := INTMAX
 	for _, key := range str {
@@ -78,12 +78,12 @@ func (self *Cursor2_t) Fetch(key rune) (value interface{}, next bool) {
 	return value, true
 }
 
-func (self *Tree2_t) Search(str string) (found interface{}) {
+func (self *Tree2_t) Search(str string) (value interface{}) {
 	c := self.Cursor()
 	for _, symbol := range str {
-		value, ok := c.Fetch(symbol)
-		if value != nil {
-			found = value
+		temp, ok := c.Fetch(symbol)
+		if temp != nil {
+			value = temp
 		}
 		if ok == false {
 			return

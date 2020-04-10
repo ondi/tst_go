@@ -20,7 +20,7 @@ type Cursor1_t struct {
 	cur **node1_t
 }
 
-func (self *Tree1_t) Add(str string, value string) {
+func (self *Tree1_t) Add(str string, value interface{}) {
 	cur := &self.root
 	var last **node1_t
 	for _, key := range str {
@@ -62,12 +62,12 @@ func (self *Cursor1_t) Fetch(key rune) (value interface{}, next bool) {
 	return value, true
 }
 
-func (self *Tree1_t) Search(str string) (found interface{}) {
+func (self *Tree1_t) Search(str string) (value interface{}) {
 	c := self.Cursor()
 	for _, symbol := range str {
-		value, ok := c.Fetch(symbol)
-		if value != nil {
-			found = value
+		temp, ok := c.Fetch(symbol)
+		if temp != nil {
+			value = temp
 		}
 		if ok == false {
 			return
