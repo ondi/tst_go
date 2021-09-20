@@ -11,7 +11,7 @@ import (
 )
 
 func Test_Tst2_01(t *testing.T) {
-	temp := &Tree1_t{}
+	temp := &Tree2_t{}
 	temp.Add("/", "/")
 	temp.Add("/debug", "/debug")
 	temp.Add("/debug/size", "/debug/size")
