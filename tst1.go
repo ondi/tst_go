@@ -24,40 +24,37 @@ func (self *Tree1_t) Add(in string, value interface{}) {
 	cur := &self.root
 	var last **node1_t
 	for _, key := range in {
-		for {
-			if *cur == nil {
-				*cur = &node1_t{key: key}
-				last = cur
-				cur = &(*cur).eq_kid
-				break
-			} else if key < (*cur).key {
+		for *cur != nil && key != (*cur).key {
+			if key < (*cur).key {
 				cur = &(*cur).lo_kid
-			} else if key > (*cur).key {
-				cur = &(*cur).hi_kid
 			} else {
-				cur = &(*cur).eq_kid
-				last = cur
-				break
+				cur = &(*cur).hi_kid
 			}
 		}
+		if *cur == nil {
+			*cur = &node1_t{key: key}
+		}
+		last = cur
+		cur = &(*cur).eq_kid
 	}
-	(*last).value = value
+	if last != nil {
+		(*last).value = value
+	}
 }
 
 func Fetch(root *node1_t, key rune) (next *node1_t, value interface{}) {
-	next = root
-	for next != nil && key != next.key {
-		if key < next.key {
-			next = next.lo_kid
+	for root != nil && key != root.key {
+		if key < root.key {
+			root = root.lo_kid
 		} else {
-			next = next.hi_kid
+			root = root.hi_kid
 		}
 	}
-	if next == nil {
+	if root == nil {
 		return
 	}
-	value = next.value
-	next = next.eq_kid
+	value = root.value
+	next = root.eq_kid
 	return
 }
 
