@@ -16,60 +16,60 @@ type Tree1_t struct {
 	root *node1_t
 }
 
-type Cursor1_t struct {
-	cur **node1_t
+func (self *Tree1_t) Root() *node1_t {
+	return self.root
 }
 
-func (self *Tree1_t) Add(str string, value interface{}) {
+func (self *Tree1_t) Add(in string, value interface{}) {
 	cur := &self.root
 	var last **node1_t
-	for _, key := range str {
-		for *cur != nil && key != (*cur).key {
-			if key < (*cur).key {
+	for _, key := range in {
+		for {
+			if *cur == nil {
+				*cur = &node1_t{key: key}
+				last = cur
+				cur = &(*cur).eq_kid
+				break
+			} else if key < (*cur).key {
 				cur = &(*cur).lo_kid
-			} else {
+			} else if key > (*cur).key {
 				cur = &(*cur).hi_kid
+			} else {
+				cur = &(*cur).eq_kid
+				last = cur
+				break
 			}
 		}
-		if *cur == nil {
-			*cur = &node1_t{key: key}
-		}
-		last = cur
-		cur = &(*cur).eq_kid
 	}
-	if last != nil {
-		(*last).value = value
-	}
+	(*last).value = value
 }
 
-func (self *Tree1_t) Cursor() *Cursor1_t {
-	return &Cursor1_t{cur: &self.root}
-}
-
-func (self *Cursor1_t) Fetch(key rune) (value interface{}, next bool) {
-	for *self.cur != nil && key != (*self.cur).key {
-		if key < (*self.cur).key {
-			self.cur = &(*self.cur).lo_kid
+func Fetch(root *node1_t, key rune) (next *node1_t, value interface{}) {
+	next = root
+	for next != nil && key != next.key {
+		if key < next.key {
+			next = next.lo_kid
 		} else {
-			self.cur = &(*self.cur).hi_kid
+			next = next.hi_kid
 		}
 	}
-	if *self.cur == nil {
+	if next == nil {
 		return
 	}
-	value = (*self.cur).value
-	self.cur = &(*self.cur).eq_kid
-	return value, true
+	value = next.value
+	next = next.eq_kid
+	return
 }
 
 func (self *Tree1_t) Search(str string) (value interface{}) {
-	c := self.Cursor()
+	next := self.Root()
+	var temp interface{}
 	for _, symbol := range str {
-		temp, ok := c.Fetch(symbol)
+		next, temp = Fetch(next, symbol)
 		if temp != nil {
 			value = temp
 		}
-		if ok == false {
+		if next == nil {
 			return
 		}
 	}
