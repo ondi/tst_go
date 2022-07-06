@@ -4,29 +4,30 @@
 
 package tst
 
-type node2_t struct {
-	hi_kid int
-	eq_kid int
-	lo_kid int
-	key    rune
-	value  interface{} // prefix terminator
+type node2_t[Value_t any] struct {
+	hi_kid    int
+	eq_kid    int
+	lo_kid    int
+	key       rune
+	value     Value_t
+	has_value bool
 }
 
-type Tree2_t struct {
-	root []node2_t
+type Tree2_t[Value_t any] struct {
+	root []node2_t[Value_t]
 }
 
-type Cursor2_t struct {
-	root []node2_t
+type Cursor2_t[Value_t any] struct {
+	root []node2_t[Value_t]
 	cur  int
 }
 
 const INTMAX = 1<<32 - 1
 
-func (self *Tree2_t) Add(str string, value interface{}) {
+func (self *Tree2_t[Value_t]) Add(in string, value Value_t) {
 	cur := 0
 	last := INTMAX
-	for _, key := range str {
+	for _, key := range in {
 		for cur < len(self.root) && key != self.root[cur].key {
 			if key < self.root[cur].key {
 				if self.root[cur].lo_kid == INTMAX {
@@ -45,23 +46,24 @@ func (self *Tree2_t) Add(str string, value interface{}) {
 			if last != INTMAX && self.root[last].eq_kid == INTMAX {
 				self.root[last].eq_kid = cur
 			}
-			self.root = append(self.root, node2_t{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
+			self.root = append(self.root, node2_t[Value_t]{key: key, eq_kid: INTMAX, hi_kid: INTMAX, lo_kid: INTMAX})
 		}
 		last = cur
 		cur = self.root[cur].eq_kid
 	}
 	if last != INTMAX {
 		self.root[last].value = value
+		self.root[last].has_value = true
 	}
 }
 
-func (self *Tree2_t) Cursor() (c *Cursor2_t) {
-	return &Cursor2_t{root: self.root}
+func (self *Tree2_t[Value_t]) Cursor() (c *Cursor2_t[Value_t]) {
+	return &Cursor2_t[Value_t]{root: self.root}
 }
 
-func (self *Cursor2_t) Fetch(key rune) (value interface{}, next bool) {
+func (self *Cursor2_t[Value_t]) Fetch(key rune) (value Value_t, ok bool, next bool) {
 	if len(self.root) == 0 {
-		return nil, false
+		return
 	}
 	for self.cur < len(self.root) && key != self.root[self.cur].key {
 		if key < self.root[self.cur].key {
@@ -74,18 +76,21 @@ func (self *Cursor2_t) Fetch(key rune) (value interface{}, next bool) {
 		return
 	}
 	value = self.root[self.cur].value
+	ok = self.root[self.cur].has_value
+	next = true
 	self.cur = self.root[self.cur].eq_kid
-	return value, true
+	return
 }
 
-func (self *Tree2_t) Search(str string) (value interface{}) {
+func (self *Tree2_t[Value_t]) Search(in string) (value Value_t, ok bool) {
 	c := self.Cursor()
-	for _, symbol := range str {
-		temp, ok := c.Fetch(symbol)
-		if temp != nil {
+	for _, symbol := range in {
+		temp, okvalue, next := c.Fetch(symbol)
+		if okvalue {
 			value = temp
+			ok = true
 		}
-		if ok == false {
+		if next == false {
 			return
 		}
 	}
