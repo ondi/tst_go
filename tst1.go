@@ -58,10 +58,10 @@ func Fetch(root *node1_t, key rune) (next *node1_t, value interface{}) {
 	return
 }
 
-func (self *Tree1_t) Search(str string) (value interface{}) {
+func (self *Tree1_t) Search(in string) (value interface{}) {
 	next := self.Root()
 	var temp interface{}
-	for _, symbol := range str {
+	for _, symbol := range in {
 		next, temp = Fetch(next, symbol)
 		if temp != nil {
 			value = temp
