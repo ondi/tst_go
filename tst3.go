@@ -4,8 +4,9 @@
 
 package tst
 
-import (
-	"hash/fnv"
+const (
+	FnvOffset64 = 14695981039346656037
+	FnvPrime64  = 1099511628211
 )
 
 type key3_t struct {
@@ -24,12 +25,12 @@ func NewTree3[Value_t any]() *Tree3_t[Value_t] {
 }
 
 func (self *Tree3_t[Value_t]) Add(in string, value Value_t) {
-	h := fnv.New64a()
 	var ok bool
-	var key key3_t
-	for i := 0; i < len(in); i++ {
-		h.Write([]byte{in[i]})
-		key.i, key.hash = i, h.Sum64()
+	key := key3_t{hash: FnvOffset64}
+	for i, v := range in {
+		key.i = i
+		key.hash ^= uint64(v)
+		key.hash *= FnvPrime64
 		if _, ok = self.root[key]; !ok {
 			self.root[key] = nil
 		}
@@ -40,13 +41,13 @@ func (self *Tree3_t[Value_t]) Add(in string, value Value_t) {
 }
 
 func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
-	h := fnv.New64a()
 	var count int
-	var key key3_t
 	var temp *Value_t
-	for i := 0; i < len(in); i++ {
-		h.Write([]byte{in[i]})
-		key.i, key.hash = i, h.Sum64()
+	key := key3_t{hash: FnvOffset64}
+	for i, v := range in {
+		key.i = i
+		key.hash ^= uint64(v)
+		key.hash *= FnvPrime64
 		if temp, ok = self.root[key]; !ok {
 			return value, count > 0
 		}
