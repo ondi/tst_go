@@ -10,8 +10,8 @@ const (
 )
 
 type key3_t struct {
-	i    int
 	hash uint64
+	pos  int
 	code rune
 }
 
@@ -32,7 +32,7 @@ func NewTree3[Value_t any]() *Tree3_t[Value_t] {
 func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
 	var ok bool
 	key := key3_t{hash: FnvOffset64}
-	for key.i, key.code = range prefix {
+	for key.pos, key.code = range prefix {
 		key.hash ^= uint64(key.code)
 		key.hash *= FnvPrime64
 		if _, ok = self.root[key]; !ok {
@@ -46,7 +46,7 @@ func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
 	var count int
 	var temp *mapped_t[Value_t]
 	key := key3_t{hash: FnvOffset64}
-	for key.i, key.code = range in {
+	for key.pos, key.code = range in {
 		key.hash ^= uint64(key.code)
 		key.hash *= FnvPrime64
 		if temp, ok = self.root[key]; !ok {
