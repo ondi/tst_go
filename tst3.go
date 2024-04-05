@@ -5,18 +5,13 @@
 package tst
 
 const (
-	// key.hash = FnvOffset64
-	// ...
-	// key.hash ^= uint64(codepoint)
-	// key.hash *= FnvPrime64
 	FnvOffset64 = 14695981039346656037
 	FnvPrime64  = 1099511628211
 )
 
 type key3_t struct {
+	hash uint64
 	pos  int
-	prev rune
-	next rune
 }
 
 type mapped3_t[Value_t any] struct {
@@ -35,11 +30,11 @@ func NewTree3[Value_t any]() *Tree3_t[Value_t] {
 
 func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
 	var ok bool
-	var prev rune
-	key := key3_t{}
-	for key.pos, key.next = range prefix {
-		key.prev = prev
-		prev = key.next
+	var code rune
+	key := key3_t{hash: FnvOffset64}
+	for key.pos, code = range prefix {
+		key.hash ^= uint64(code)
+		key.hash *= FnvPrime64
 		if _, ok = self.root[key]; !ok {
 			self.root[key] = nil
 		}
@@ -49,12 +44,12 @@ func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
 
 func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
 	var count int
-	var prev rune
+	var code rune
 	var temp *mapped3_t[Value_t]
-	key := key3_t{}
-	for key.pos, key.next = range in {
-		key.prev = prev
-		prev = key.next
+	key := key3_t{hash: FnvOffset64}
+	for key.pos, code = range in {
+		key.hash ^= uint64(code)
+		key.hash *= FnvPrime64
 		if temp, ok = self.root[key]; !ok {
 			return value, count > 0
 		}
