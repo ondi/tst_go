@@ -14,17 +14,17 @@ type key3_t struct {
 	pos  int
 }
 
-type mapped_t[Value_t any] struct {
+type mapped3_t[Value_t any] struct {
 	value Value_t
 }
 
 type Tree3_t[Value_t any] struct {
-	root map[key3_t]*mapped_t[Value_t]
+	root map[key3_t]*mapped3_t[Value_t]
 }
 
 func NewTree3[Value_t any]() *Tree3_t[Value_t] {
 	return &Tree3_t[Value_t]{
-		root: map[key3_t]*mapped_t[Value_t]{},
+		root: map[key3_t]*mapped3_t[Value_t]{},
 	}
 }
 
@@ -39,13 +39,13 @@ func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
 			self.root[key] = nil
 		}
 	}
-	self.root[key] = &mapped_t[Value_t]{value: value}
+	self.root[key] = &mapped3_t[Value_t]{value: value}
 }
 
 func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
 	var count int
 	var code rune
-	var temp *mapped_t[Value_t]
+	var temp *mapped3_t[Value_t]
 	key := key3_t{hash: FnvOffset64}
 	for key.pos, code = range in {
 		key.hash ^= uint64(code)
