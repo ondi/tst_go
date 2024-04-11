@@ -29,9 +29,8 @@ func NewTree3[Value_t any]() *Tree3_t[Value_t] {
 	}
 }
 
-func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
+func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) (ok bool) {
 	var i int
-	var ok bool
 	key := key3_t{hash: FnvOffset64}
 	for i, key.code = range prefix {
 		key.pos = int32(i)
@@ -41,7 +40,10 @@ func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) {
 			self.root[key] = nil
 		}
 	}
-	self.root[key] = &mapped3_t[Value_t]{value: value}
+	if !ok {
+		self.root[key] = &mapped3_t[Value_t]{value: value}
+	}
+	return !ok
 }
 
 func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
