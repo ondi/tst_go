@@ -6,13 +6,16 @@ package tst
 
 import "math"
 
+type mapped2_t[Value_t any] struct {
+	value Value_t
+}
+
 type node2_t[Value_t any] struct {
-	hi_kid    int
-	eq_kid    int
-	lo_kid    int
-	key       rune
-	value     Value_t
-	has_value bool
+	hi_kid int
+	eq_kid int
+	lo_kid int
+	value  *mapped2_t[Value_t]
+	key    rune
 }
 
 type Tree2_t[Value_t any] struct {
@@ -52,8 +55,7 @@ func (self *Tree2_t[Value_t]) Add(in string, value Value_t) {
 		cur = self.root[cur].eq_kid
 	}
 	if last != math.MaxInt {
-		self.root[last].value = value
-		self.root[last].has_value = true
+		self.root[last].value = &mapped2_t[Value_t]{value: value}
 	}
 }
 
@@ -75,20 +77,21 @@ func (self *Cursor2_t[Value_t]) Fetch(key rune) (value Value_t, ok bool, next bo
 	if self.cur == math.MaxInt {
 		return
 	}
-	value = self.root[self.cur].value
-	ok = self.root[self.cur].has_value
-	next = true
+	if ok = self.root[self.cur].value != nil; ok {
+		value = self.root[self.cur].value.value
+	}
 	self.cur = self.root[self.cur].eq_kid
+	next = true
 	return
 }
 
-func (self *Tree2_t[Value_t]) Search(in string) (value Value_t, ok bool) {
+func (self *Tree2_t[Value_t]) Search(in string) (value Value_t, found int) {
 	c := self.Cursor()
 	for _, symbol := range in {
 		temp, okvalue, next := c.Fetch(symbol)
 		if okvalue {
+			found++
 			value = temp
-			ok = true
 		}
 		if next == false {
 			return

@@ -4,13 +4,16 @@
 
 package tst
 
+type mapped1_t[Value_t any] struct {
+	value Value_t
+}
+
 type node1_t[Value_t any] struct {
-	eq_kid    *node1_t[Value_t]
-	hi_kid    *node1_t[Value_t]
-	lo_kid    *node1_t[Value_t]
-	key       rune
-	value     Value_t
-	has_value bool
+	eq_kid *node1_t[Value_t]
+	hi_kid *node1_t[Value_t]
+	lo_kid *node1_t[Value_t]
+	value  *mapped1_t[Value_t]
+	key    rune
 }
 
 type Tree1_t[Value_t any] struct {
@@ -39,37 +42,36 @@ func (self *Tree1_t[Value_t]) Add(in string, value Value_t) {
 		cur = &(*cur).eq_kid
 	}
 	if last != nil {
-		(*last).value = value
-		(*last).has_value = true
+		(*last).value = &mapped1_t[Value_t]{value: value}
 	}
 }
 
-func Fetch[Value_t any](root *node1_t[Value_t], key rune) (next *node1_t[Value_t], value Value_t, ok bool) {
-	for root != nil && key != root.key {
-		if key < root.key {
-			root = root.lo_kid
+func Fetch[Value_t any](in *node1_t[Value_t], key rune) (next *node1_t[Value_t], res *node1_t[Value_t], ok bool) {
+	res = in
+	for res != nil && key != res.key {
+		if key < res.key {
+			res = res.lo_kid
 		} else {
-			root = root.hi_kid
+			res = res.hi_kid
 		}
 	}
-	if root == nil {
+	if res == nil {
 		return
 	}
-	value = root.value
-	ok = root.has_value
-	next = root.eq_kid
+	next = res.eq_kid
+	ok = res.value != nil
 	return
 }
 
-func (self *Tree1_t[Value_t]) Search(in string) (value Value_t, ok bool) {
-	next := self.Root()
+func (self *Tree1_t[Value_t]) Search(in string) (value Value_t, found int) {
 	var okfetch bool
-	var temp Value_t
+	var temp *node1_t[Value_t]
+	next := self.Root()
 	for _, symbol := range in {
 		next, temp, okfetch = Fetch(next, symbol)
 		if okfetch {
-			ok = true
-			value = temp
+			found++
+			value = temp.value.value
 		}
 		if next == nil {
 			return

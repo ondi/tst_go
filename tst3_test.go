@@ -19,36 +19,36 @@ func Test_Tst3_01(t *testing.T) {
 	temp.Add("/pprof", "/pprof")
 	temp.Add("/metrics", "/metrics")
 
-	var ok bool
+	var found int
 	var value string
 
-	value, ok = temp.Search("")
-	assert.Assert(t, ok == false)
+	value, _, found = temp.Search("")
+	assert.Assert(t, found == 0)
 
-	value, ok = temp.Search("v1/test")
-	assert.Assert(t, ok == false)
+	value, _, found = temp.Search("v1/test")
+	assert.Assert(t, found == 0)
 
-	value, ok = temp.Search("/v1/test")
+	value, _, found = temp.Search("/v1/test")
 	assert.Assert(t, value == "/")
 
-	value, ok = temp.Search("/debu")
+	value, _, found = temp.Search("/debu")
 	assert.Assert(t, value == "/", value)
 
-	value, ok = temp.Search("/debug/test")
+	value, _, found = temp.Search("/debug/test")
 	assert.Assert(t, value == "/debug")
 
-	value, ok = temp.Search("/debug/size")
+	value, _, found = temp.Search("/debug/size")
 	assert.Assert(t, value == "/debug")
 
-	value, ok = temp.Search("/pprof/heap")
+	value, _, found = temp.Search("/pprof/heap")
 	assert.Assert(t, value == "/pprof")
 
-	value, ok = temp.Search("/pprof/profile")
+	value, _, found = temp.Search("/pprof/profile")
 	assert.Assert(t, value == "/pprof")
 
-	value, ok = temp.Search("/metrics/sql")
+	value, _, found = temp.Search("/metrics/sql")
 	assert.Assert(t, value == "/metrics")
 
-	value, ok = temp.Search("/metrics/page")
+	value, _, found = temp.Search("/metrics/page")
 	assert.Assert(t, value == "/metrics")
 }

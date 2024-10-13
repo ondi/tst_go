@@ -48,21 +48,21 @@ func (self *Tree3_t[Value_t]) Add(prefix string, value Value_t) (ok bool) {
 	return false
 }
 
-func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, ok bool) {
-	var i, count int
+func (self *Tree3_t[Value_t]) Search(in string) (value Value_t, length int, found int) {
+	var ok bool
 	var temp *mapped3_t[Value_t]
 	key := key3_t{hash: FnvOffset64}
-	for i, key.code = range in {
-		key.pos = int32(i)
+	for length, key.code = range in {
+		key.pos = int32(length)
 		key.hash ^= uint64(key.code)
 		key.hash *= FnvPrime64
 		if temp, ok = self.root[key]; !ok {
-			return value, count > 0
+			return
 		}
 		if temp != nil {
+			found++
 			value = temp.value
-			count++
 		}
 	}
-	return value, count > 0
+	return
 }
